@@ -8,6 +8,7 @@ import random, string, md5, time
 import Image, ImageDraw, ImageFont, ImageChops, ImageFilter
 import StringIO
 import math, operator
+from math import sqrt, sin, cos, atan2
 
 # Filters that input Image and output Image
 #
@@ -30,9 +31,39 @@ class Effect(object):
         return img
 
 
-class GlobalWarpEffect(Effect):
-    '''Warping Effect Base class.
-    provide basic warping framework
+class LocalWarpEffect(Effect):
+    def filter(self, img):
+        width, height = img.size
+        new_img = img.copy()
+        r = 100
+        cx, cy = 100, 100
+        mx, my = 120, 120
+        f = lambda x, y: (x, y)
+
+        for x in range(width):
+            for y in range(height):
+                if sqrt((x - cx) ** 2 + (y - cy) ** 2) > r:
+                    continue
+                    
+                u, v = f(x, y)
+                dis_x_c = sqrt((x - cx) ** 2 + (y - cy) ** 2) 
+                dis_m_c = sqrt((x - mx) ** 2 + (y - my) ** 2) 
+                factor = ((r ** 2 - dis_x_c ** 2) / float(r ** 2 - dis_x_c ** 2 + dis_m_c ** 2)) ** 2
+                u = x - factor * (mx - cx)
+                v = y - factor * (my - cy) 
+
+                u = int(round(u))
+                v = int(round(v))
+
+                # print '(%d, %d) => (%d, %d)' % (u, v, x, y)
+                new_img.putpixel((x, y), img.getpixel((u, v)))
+
+        return new_img 
+
+
+class LensWarpEffect(Effect):
+    '''Lens warping Effect
+    provide basic entire image lens warping framework
     '''
     name = 'Warp Effect' 
 
@@ -95,17 +126,17 @@ class RadianFormulaEffect(Effect):
             '''transform formula
             func is a function that like f(r, phi) => (r, phi)
             '''
-            r = math.sqrt(x ** 2 + y ** 2)
-            phi = math.atan2(y, x)
+            r = sqrt(x ** 2 + y ** 2)
+            phi = atan2(y, x)
 
             r, phi = self.formula(r, phi)
 
-            xnew = r * math.cos(phi)
-            ynew = r * math.sin(phi)
+            xnew = r * cos(phi)
+            ynew = r * sin(phi)
 
             return xnew, ynew
 
-        warp = GlobalWarpEffect(radian_formula, self.antialias)
+        warp = LensWarpEffect(radian_formula, self.antialias)
         return warp(img)
 
 
@@ -113,7 +144,7 @@ class RadianSqrtEffect(RadianFormulaEffect):
     name = 'r = sqrt(r)' 
     def __init__(self):
         super(RadianSqrtEffect, self).__init__(
-            lambda r, phi: (math.sqrt(r), phi))
+            lambda r, phi: (sqrt(r), phi))
         
 
 class WaveEffect(Effect):
@@ -141,7 +172,7 @@ class WaveEffect(Effect):
         for x in range(left, right):
             degree = x * width_delta
             for y in range(top, bottom):
-                h = math.sin(degree) * height_delta * ((bottom - top) / 2 - math.sqrt((y - mid_y) ** 2 + (x - mid_x) ** 2)) / mid_y
+                h = sin(degree) * height_delta * ((bottom - top) / 2 - sqrt((y - mid_y) ** 2 + (x - mid_x) ** 2)) / mid_y
                 offset = int(round(h))
                 if 0 < x < width and 0 < y + offset < height:
                     new_img.putpixel((x, y), img.getpixel((x, y + offset)))
@@ -203,6 +234,9 @@ class TextWriter(Effect):
         self.y = y
         self.text = text
         self.color = color
+        if font:
+            raise NotEmplementedError
+        self.font = font
 
     def filter(self, img):
         draw = ImageDraw.Draw(img) 
@@ -210,43 +244,6 @@ class TextWriter(Effect):
         del draw
         return img
         
-
-def GenerateImage(effect):
-    # draw img
-    # img = Image.open('z.jpg')
-    img = Image.new("RGBA", (300, 300), (255, 255, 255, 255))
-
-    width, height = img.size
-
-    grid = GridMaker(20, 20)
-    text = TextWriter((10, 100), string.letters)
-
-    img = grid.filter(text.filter(img))
-
-    old = img.copy()
-
-    img = effect(img) 
-
-    out = Image.new("RGBA", (width * 2, height))
-    out.paste(old, (0, 0))
-    out.paste(img, (width, 0)) 
-    draw = ImageDraw.Draw(out) 
-
-    draw.line((width, 0, width, height), (255, 0, 0, 255))
-
-    out.save('haha.png')
-
 def sign(v):
     return 1 if v >= 0 else -1
     
-if __name__ == '__main__':
-    wave = WaveEffect(0.2, 0.5, (100, 50, 200, 200))
-    sqrt = RadianSqrtEffect()
-    effect = RadianFormulaEffect(lambda r, phi: (r ** 1.2, phi))
-    effect = RadianFormulaEffect(lambda r, phi: (r ** 1.5 * math.cos(r), phi))
-    effect = RadianFormulaEffect(lambda r, phi: (r, phi + 0.5))
-    effect = GlobalWarpEffect(lambda x, y: (x + 0.1, y))
-    effect = GlobalWarpEffect(lambda x, y: (math.sin(x * math.pi / 2), math.sin(y * math.pi / 2)))
-    effect = GlobalWarpEffect(lambda x, y: (sign(x) * x ** 2, sign(y) * y ** 2))
-    effect = RadianFormulaEffect(lambda r, phi: (r ** 2, phi), 4)
-    GenerateImage(effect)

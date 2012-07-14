@@ -4,6 +4,7 @@
 # website: http://EverET.org
 #
 
+import os
 from EffectLab.Effect import *
 
 def make_origin_and_new(img, effect):
@@ -28,11 +29,21 @@ if __name__ == '__main__':
     effects = [WaveEffect(0.2, 0.5, (100, 50, 200, 200)),
                RadianSqrtEffect(),
                RadianFormulaEffect(lambda r, phi: (r ** 1.5 * math.cos(r), phi)),
-               GlobalWarpEffect(lambda x, y: (math.sin(x * math.pi / 2), math.sin(y * math.pi / 2))),
-               GlobalWarpEffect(lambda x, y: (sign(x) * x ** 2, sign(y) * y ** 2)),
+               LensWarpEffect(lambda x, y: (math.sin(x * math.pi / 2), math.sin(y * math.pi / 2))),
+               LensWarpEffect(lambda x, y: (sign(x) * x ** 2, sign(y) * y ** 2)),
                RadianFormulaEffect(lambda r, phi: (r ** 2, phi), 4),]
-    #img = Image.open('z.jpg')
-    img = Image.new("RGBA", (300, 300), (255, 255, 255, 255))
+
+    effects = [
+        #RadianFormulaEffect(lambda r, phi: (math.sin(math.pi * 2 * r), phi)),
+        # RadianFormulaEffect(lambda r, phi: (math.log(r + 0.00001) * math.tan(r), phi)),
+        LocalWarpEffect(),
+        ]
+
+    if os.path.exists('z.jpg'):
+        img = Image.open('z.jpg')
+    else:
+        img = Image.new("RGBA", (300, 300), (255, 255, 255, 255))
+
     for index, effect in enumerate(effects):
         make_origin_and_new(img, effect).save('%d.jpg' % index, quality=90)
         print '.',
