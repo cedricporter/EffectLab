@@ -58,8 +58,27 @@ class LocalWarpEffect(Effect):
             for y in range(height):
                 if sqrt((x - cx) ** 2 + (y - cy) ** 2) > r:
                     continue
-                u, v = self.warp(x, y, r, (cx, cy), (mx, my))
-                new_img.putpixel((x, y), img.getpixel((u, v)) )
+
+                found = 0
+                psum = (0, ) * nband
+                new_img.putpixel((x, y), (128, 128, 128, 255))
+
+                for ai in range(antialias):
+                    for aj in range(antialias):
+                        _x = x + ai
+                        _y = y + aj
+
+                        u, v = self.warp(_x, _y, r, (cx, cy), (mx, my))
+                        u = int(round(u))
+                        v = int(round(v))
+                        pt = img.getpixel((u, v))
+                        psum = map(operator.add, psum, pt)
+                        found += 1 
+
+                if found > 0:
+                    psum = map(operator.div, psum, (antialias * antialias, ) * len(psum)) 
+                    new_img.putpixel((x, y), tuple(psum))
+                # new_img.putpixel((x, y), img.getpixel((u, v)) )
 
         return new_img 
 
