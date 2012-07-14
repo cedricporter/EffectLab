@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-  
 # author:  Hua Liang [ Stupid ET ]
 # email:   et@everet.org
 # website: http://EverET.org
@@ -35,7 +36,7 @@ class LocalWarpEffect(Effect):
     '''Interactive Image Warping Effect
     @note 参考文献: Interactive Image Warping by Andreas Gustafsson 
     '''
-    def __init__(self, center, mouse, radius):
+    def __init__(self, center, mouse, radius, antialias=2):
         '''
         @param center 局部变形效果的圆心，可以认为是鼠标按下起点
         @param mouse 鼠标释放的位置
@@ -44,13 +45,17 @@ class LocalWarpEffect(Effect):
         self.center = center
         self.mouse = mouse
         self.radius = radius
+        self.antialias = antialias
 
     def warp(self, x, y, r, center, mouse):
         cx, cy = center
         mx, my = mouse
         dis_x_c = sqrt((x - cx) ** 2 + (y - cy) ** 2) 
         dis_m_c = sqrt((x - mx) ** 2 + (y - my) ** 2) 
-        factor = ((r ** 2 - dis_x_c ** 2) / float(r ** 2 - dis_x_c ** 2 + dis_m_c ** 2)) ** 2
+        div = float(r ** 2 - dis_x_c ** 2 + dis_m_c ** 2) 
+        if div == 0:
+            div = 0.0000000001
+        factor = ((r ** 2 - dis_x_c ** 2) / div) ** 2
 
         u = x - factor * (mx - cx)
         v = y - factor * (my - cy) 
@@ -65,7 +70,7 @@ class LocalWarpEffect(Effect):
         mx, my = self.mouse
 
         nband = len(img.getpixel((0, 0)))
-        antialias = 4
+        antialias = self.antialias
         for x in range(width):
             for y in range(height):
                 if sqrt((x - cx) ** 2 + (y - cy) ** 2) > r:

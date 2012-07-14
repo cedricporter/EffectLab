@@ -31,13 +31,9 @@ if __name__ == '__main__':
                RadianFormulaEffect(lambda r, phi: (r ** 1.5 * math.cos(r), phi)),
                LensWarpEffect(lambda x, y: (math.sin(x * math.pi / 2), math.sin(y * math.pi / 2))),
                LensWarpEffect(lambda x, y: (sign(x) * x ** 2, sign(y) * y ** 2)),
-               RadianFormulaEffect(lambda r, phi: (r ** 2, phi), 4),]
-
-    effects = [
-        #RadianFormulaEffect(lambda r, phi: (math.sin(math.pi * 2 * r), phi)),
-        # RadianFormulaEffect(lambda r, phi: (math.log(r + 0.00001) * math.tan(r), phi)),
-        LocalWarpEffect(),
-        ]
+               RadianFormulaEffect(lambda r, phi: (r ** 2, phi), 4), 
+               LocalWarpEffect((130, 120), (130, 50), 100),
+               ]
 
     if os.path.exists('z.jpg'):
         img = Image.open('z.jpg')
