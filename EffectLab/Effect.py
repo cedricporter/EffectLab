@@ -32,6 +32,18 @@ class Effect(object):
 
 
 class LocalWarpEffect(Effect):
+    def warp(self, x, y, r, center, mouse):
+        cx, cy = center
+        mx, my = mouse
+        dis_x_c = sqrt((x - cx) ** 2 + (y - cy) ** 2) 
+        dis_m_c = sqrt((x - mx) ** 2 + (y - my) ** 2) 
+        factor = ((r ** 2 - dis_x_c ** 2) / float(r ** 2 - dis_x_c ** 2 + dis_m_c ** 2)) ** 2
+
+        u = x - factor * (mx - cx)
+        v = y - factor * (my - cy) 
+
+        return u, v
+
     def filter(self, img):
         width, height = img.size
         new_img = img.copy()
@@ -40,23 +52,14 @@ class LocalWarpEffect(Effect):
         mx, my = 120, 120
         f = lambda x, y: (x, y)
 
+        nband = len(img.getpixel((0, 0)))
+        antialias = 1
         for x in range(width):
             for y in range(height):
                 if sqrt((x - cx) ** 2 + (y - cy) ** 2) > r:
                     continue
-                    
-                u, v = f(x, y)
-                dis_x_c = sqrt((x - cx) ** 2 + (y - cy) ** 2) 
-                dis_m_c = sqrt((x - mx) ** 2 + (y - my) ** 2) 
-                factor = ((r ** 2 - dis_x_c ** 2) / float(r ** 2 - dis_x_c ** 2 + dis_m_c ** 2)) ** 2
-                u = x - factor * (mx - cx)
-                v = y - factor * (my - cy) 
-
-                u = int(round(u))
-                v = int(round(v))
-
-                # print '(%d, %d) => (%d, %d)' % (u, v, x, y)
-                new_img.putpixel((x, y), img.getpixel((u, v)))
+                u, v = self.warp(x, y, r, (cx, cy), (mx, my))
+                new_img.putpixel((x, y), img.getpixel((u, v)) )
 
         return new_img 
 
