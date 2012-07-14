@@ -10,13 +10,12 @@ import StringIO
 import math, operator
 from math import sqrt, sin, cos, atan2
 
-# Filters that input Image and output Image
+# Effect是特效处理流程中的过滤器，输入PIL中的Image，然后输出处理好的Image
+# 其中，（）是经过重载的，默认调用成员函数filter(img)。这样可以方便的与其他普通过滤器函数组合在一起。
 #
 
 class Effect(object):
     '''The base Effect
-    All Effects have a member function called "filter"
-    which receives a PIL Image and return a PIL Image
     '''
     name = 'Base Effect'
     empty_color = (128, 128, 128, 255)
@@ -24,7 +23,8 @@ class Effect(object):
         pass
 
     def __call__(self, img):
-        '''The effect can act like a filter function'''
+        '''重载（），模仿C++中的仿函数。
+        '''
         return self.filter(img)
 
     def filter(self, img):
@@ -32,6 +32,19 @@ class Effect(object):
 
 
 class LocalWarpEffect(Effect):
+    '''Interactive Image Warping Effect
+    @note 参考文献: Interactive Image Warping by Andreas Gustafsson 
+    '''
+    def __init__(self, center, mouse, radius):
+        '''
+        @param center 局部变形效果的圆心，可以认为是鼠标按下起点
+        @param mouse 鼠标释放的位置
+        '''
+
+        self.center = center
+        self.mouse = mouse
+        self.radius = radius
+
     def warp(self, x, y, r, center, mouse):
         cx, cy = center
         mx, my = mouse
@@ -47,10 +60,9 @@ class LocalWarpEffect(Effect):
     def filter(self, img):
         width, height = img.size
         new_img = img.copy()
-        r = 100
-        cx, cy = 100, 100
-        mx, my = 120, 120
-        f = lambda x, y: (x, y)
+        r = self.radius
+        cx, cy = self.center
+        mx, my = self.mouse
 
         nband = len(img.getpixel((0, 0)))
         antialias = 4
@@ -62,6 +74,7 @@ class LocalWarpEffect(Effect):
                 found = 0
                 psum = (0, ) * nband
 
+                # anti-alias
                 for ai in range(antialias):
                     _x = x + ai / float(antialias)
                     for aj in range(antialias):
@@ -79,14 +92,15 @@ class LocalWarpEffect(Effect):
                 if found > 0:
                     psum = map(operator.div, psum, (antialias * antialias, ) * len(psum)) 
                     new_img.putpixel((x, y), tuple(psum))
-                # new_img.putpixel((x, y), img.getpixel((u, v)) )
 
         return new_img 
 
 
 class LensWarpEffect(Effect):
     '''Lens warping Effect
-    provide basic entire image lens warping framework
+    全局性的镜头变形效果，构造的时候需要输入一个变换方程
+    f(x, y) => (x', y').其中，x和y都被规范化为-1到1的取值。
+    参考资料：http://paulbourke.net/miscellaneous/imagewarp/
     '''
     name = 'Warp Effect' 
 
@@ -230,6 +244,7 @@ class EffectGlue(Effect):
         
 
 class GridMaker(Effect):
+    '''用于绘制网格'''
     name = 'Grid Maker'
     def __init__(self, width_offset, height_offset, color=(0, 0, 0, 255)):
         self.width_offset = width_offset
