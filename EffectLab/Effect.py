@@ -53,7 +53,7 @@ class LocalWarpEffect(Effect):
         f = lambda x, y: (x, y)
 
         nband = len(img.getpixel((0, 0)))
-        antialias = 1
+        antialias = 4
         for x in range(width):
             for y in range(height):
                 if sqrt((x - cx) ** 2 + (y - cy) ** 2) > r:
@@ -61,12 +61,11 @@ class LocalWarpEffect(Effect):
 
                 found = 0
                 psum = (0, ) * nband
-                # new_img.putpixel((x, y), (128, 128, 128, 255))
 
                 for ai in range(antialias):
-                    _x = x + ai
+                    _x = x + ai / float(antialias)
                     for aj in range(antialias):
-                        _y = y + aj
+                        _y = y + aj / float(antialias)
 
                         u, v = self.warp(_x, _y, r, (cx, cy), (mx, my))
                         u = int(round(u))
