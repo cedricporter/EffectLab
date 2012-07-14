@@ -61,16 +61,18 @@ class LocalWarpEffect(Effect):
 
                 found = 0
                 psum = (0, ) * nband
-                new_img.putpixel((x, y), (128, 128, 128, 255))
+                # new_img.putpixel((x, y), (128, 128, 128, 255))
 
                 for ai in range(antialias):
+                    _x = x + ai
                     for aj in range(antialias):
-                        _x = x + ai
                         _y = y + aj
 
                         u, v = self.warp(_x, _y, r, (cx, cy), (mx, my))
                         u = int(round(u))
                         v = int(round(v))
+                        if not (0 <= u < width and 0 <= v < height):
+                            continue
                         pt = img.getpixel((u, v))
                         psum = map(operator.add, psum, pt)
                         found += 1 
