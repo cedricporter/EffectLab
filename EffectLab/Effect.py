@@ -5,6 +5,9 @@
 # website: http://EverET.org
 #
 
+# Rule Of Optimization: Prototype before polishing. Get it
+#                       working before you optimize it.
+
 import random, string, md5, time
 import Image, ImageDraw, ImageFont, ImageChops, ImageFilter
 import StringIO
@@ -32,6 +35,48 @@ class Effect(object):
         return img
 
 
+class RegionWarpEffect(Effect):
+    def __init__(self, formula, antialias=2, box=None):
+        self.formula = formula
+        self.antialias = antialias
+        self.box = box
+
+    def filter(self, img):
+        width, height = img.size
+        new_img = Image.new(img.mode, img.size, Effect.empty_color)
+
+        nband = len(img.getpixel((0, 0)))
+        antialias = self.antialias
+        left, top, right, bottom = self.box if self.box else (0, 0, width, height)
+            
+        for x in range(left, right):
+            for y in range(top, bottom): 
+                found = 0
+                psum = (0, ) * nband
+
+                # anti-alias
+                for ai in range(antialias):
+                    _x = x + ai / float(antialias)
+                    for aj in range(antialias):
+                        _y = y + aj / float(antialias)
+
+                        u, v = self.formula(_x, _y)
+
+                        u = int(round(u))
+                        v = int(round(v))
+                        if not (0 <= u < width and 0 <= v < height):
+                            continue
+                        pt = img.getpixel((u, v))
+                        psum = map(operator.add, psum, pt)
+                        found += 1 
+
+                if found > 0:
+                    psum = map(operator.div, psum, (antialias * antialias, ) * len(psum)) 
+                    new_img.putpixel((x, y), tuple(psum))
+
+        return new_img 
+        
+        
 class LocalWarpEffect(Effect):
     '''Interactive Image Warping Effect
     @note 参考文献: Interactive Image Warping by Andreas Gustafsson 
@@ -188,6 +233,25 @@ class RadianSqrtEffect(RadianFormulaEffect):
         super(RadianSqrtEffect, self).__init__(
             lambda r, phi: (sqrt(r), phi))
         
+class GlobalWaveEffect(Effect):
+    '''全局波浪效果，使用sin进行变换
+    '''
+    def __init__(self, dw=1, dh=0.1, antialias=2):
+        self.dw = dw
+        self.dh = dh
+        self.antialias = antialias
+
+    def transform(self, x, y, width, height, delta_w, delta_h):
+        radian = 2 * math.pi * x / float(width) * delta_w
+        offset = 0.5 * sin(radian) * height * delta_h
+
+        return x, y + offset
+        
+    def filter(self, img):
+        width, height = img.size
+        f = lambda x, y: self.transform(x, y, width, height, self.dw, self.dh)
+        warp = RegionWarpEffect(f, self.antialias)
+        return warp(img)
 
 class WaveEffect(Effect):
     name = 'Wave Effect'
@@ -214,10 +278,15 @@ class WaveEffect(Effect):
         for x in range(left, right):
             degree = x * width_delta
             for y in range(top, bottom):
+
+                # distortion
                 h = sin(degree) * height_delta * ((bottom - top) / 2 - sqrt((y - mid_y) ** 2 + (x - mid_x) ** 2)) / mid_y
                 offset = int(round(h))
-                if 0 < x < width and 0 < y + offset < height:
-                    new_img.putpixel((x, y), img.getpixel((x, y + offset)))
+                _x = x
+                _y = y + offset
+
+                if 0 < x < width and 0 < _y < height:
+                    new_img.putpixel((x, y), img.getpixel((x, _y)))
                 else:
                     new_img.putpixel((x, y), Effect.empty_color)
 

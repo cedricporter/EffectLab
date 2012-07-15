@@ -26,7 +26,7 @@ def make_origin_and_new(img, effect):
     return out
 
 if __name__ == '__main__':
-    effects = [WaveEffect(0.2, 0.5, (100, 50, 200, 200)),
+    effects = [GlobalWaveEffect(),
                RadianSqrtEffect(),
                RadianFormulaEffect(lambda r, phi: (r ** 1.5 * math.cos(r), phi)),
                LensWarpEffect(lambda x, y: (math.sin(x * math.pi / 2), math.sin(y * math.pi / 2))),
