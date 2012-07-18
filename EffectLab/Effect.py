@@ -49,15 +49,15 @@ class RegionWarpEffect(Effect):
         antialias = self.antialias
         left, top, right, bottom = self.box if self.box else (0, 0, width, height)
             
-        for x in range(left, right):
-            for y in range(top, bottom): 
+        for x in xrange(left, right):
+            for y in xrange(top, bottom): 
                 found = 0
                 psum = (0, ) * nband
 
                 # anti-alias
-                for ai in range(antialias):
+                for ai in xrange(antialias):
                     _x = x + ai / float(antialias)
-                    for aj in range(antialias):
+                    for aj in xrange(antialias):
                         _y = y + aj / float(antialias)
 
                         u, v = self.formula(_x, _y)
@@ -116,8 +116,8 @@ class LocalWarpEffect(Effect):
 
         nband = len(img.getpixel((0, 0)))
         antialias = self.antialias
-        for x in range(width):
-            for y in range(height):
+        for x in xrange(width):
+            for y in xrange(height):
                 if sqrt((x - cx) ** 2 + (y - cy) ** 2) > r:
                     continue
 
@@ -125,9 +125,9 @@ class LocalWarpEffect(Effect):
                 psum = (0, ) * nband
 
                 # anti-alias
-                for ai in range(antialias):
+                for ai in xrange(antialias):
                     _x = x + ai / float(antialias)
-                    for aj in range(antialias):
+                    for aj in xrange(antialias):
                         _y = y + aj / float(antialias)
 
                         u, v = self.warp(_x, _y, r, (cx, cy), (mx, my))
@@ -166,15 +166,15 @@ class LensWarpEffect(Effect):
         nx, ny = width, height
         new_img = img.copy()
         nband = len(img.getpixel((0, 0)))
-        for j in range(height):
-            for i in range(width):
+        for j in xrange(height):
+            for i in xrange(width):
                 found = 0
                 psum = (0, ) * nband
                 new_img.putpixel((i, j), Effect.empty_color)
                 # antialias
-                for ai in range(self.antialias):
+                for ai in xrange(self.antialias):
                     x = 2 * (i + ai / float(self.antialias)) / width - 1
-                    for aj in range(self.antialias):
+                    for aj in xrange(self.antialias):
                         y = 2 * (j + aj / float(self.antialias)) / height - 1
 
                         # distortion 
@@ -275,9 +275,9 @@ class WaveEffect(Effect):
         new_img = img.copy()
         height_delta = (bottom - top + 1) * self.vertical_delta 
         width_delta = 2 * math.pi / (right - left + 1) * (self.horizon_delta + 1)
-        for x in range(left, right):
+        for x in xrange(left, right):
             degree = x * width_delta
-            for y in range(top, bottom):
+            for y in xrange(top, bottom):
 
                 # distortion
                 h = sin(degree) * height_delta * ((bottom - top) / 2 - sqrt((y - mid_y) ** 2 + (x - mid_x) ** 2)) / mid_y
@@ -330,9 +330,9 @@ class GridMaker(Effect):
 
         # draw grid
         draw = ImageDraw.Draw(img) 
-        for x in range(0, width, self.width_offset):
+        for x in xrange(0, width, self.width_offset):
             draw.line((x, 0, x, height), self.color) 
-        for y in range(0, height, self.height_offset):
+        for y in xrange(0, height, self.height_offset):
             draw.line((0, y, width, y), self.color) 
 
         del draw
