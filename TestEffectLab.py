@@ -6,8 +6,11 @@
 
 import os, time, string, random
 import autoreload
+import ImageChops
 from math import sqrt, sin, cos, tan, atan2
 from EffectLab.Effect import *
+
+Effect.empty_color = (255, 255, 255, 255)
 
 def merge_origin_and_new(img, effect):
     '''Merge origin and new Image processed by function effect in one Image
@@ -27,17 +30,21 @@ def merge_origin_and_new(img, effect):
 
     return out
 
+class Character(object):
+    def __init__(self, img):
+        self.width, self.height = img.size
+        self.img = img
 
 def main():
     print 'Started'
 
     effects = [
         RadianFormulaEffect(lambda r, phi: (r ** 2, phi), 4), 
+        RadianSqrtEffect(),
+        GlobalWaveEffect(),
+        LensWarpEffect(lambda x, y: (sign(x) * x ** 2, sign(y) * y ** 2)),
         LensWarpEffect(lambda x, y: (sin(x * math.pi / 2), sin(y * math.pi / 2))),
         RadianFormulaEffect(lambda r, phi: (r ** 1.5 * math.cos(r), phi)),
-        GlobalWaveEffect(),
-        RadianSqrtEffect(),
-        LensWarpEffect(lambda x, y: (sign(x) * x ** 2, sign(y) * y ** 2)),
         LocalWarpEffect((130, 120), (130, 50), 100),
                ] 
 
@@ -46,15 +53,29 @@ def main():
     # else:
     #     img = Image.new("RGBA", (300, 300), (255, 255, 255, 255))
 
+    characters = string.letters + string.digits
+    char_img = {} 
+    for ch in characters:
+        img = Image.open('Images/%s.png' % ch)
+        char_img[ch] = Character(img)
+
     text = ''.join(random.choice(string.letters) for i in xrange(4))
 
-    img = Image.new("RGB", (100, 40), (255, 255, 255))
+    img = Image.new("RGBA", (100, 40), (255, 255, 255, 255))
     font = ImageFont.truetype("UbuntuMono-R.ttf", 33)
-    draw = ImageDraw.Draw(img) 
-    draw.setfont(font)
+    # draw = ImageDraw.Draw(img) 
+    # draw.setfont(font) 
+    # draw.text((10, 0), text, (0, 0, 0)) 
 
-    draw.text((10, 0), text, (0, 0, 0)) 
-    del draw
+    last = random.choice(characters)
+    offset = 15
+    for i in range(5):
+        ch = random.choice(characters)
+        img.paste(char_img[ch].img,
+                  (offset, 0),
+                  ImageChops.invert(char_img[ch].img.split()[1]))
+        last = ch
+        offset += char_img[last].width - 1
 
     for index, effect in enumerate(effects):
         merge_origin_and_new(img, effect).save('%d.jpg' % index, quality=90)

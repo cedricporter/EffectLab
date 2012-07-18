@@ -71,7 +71,7 @@ class RegionWarpEffect(Effect):
                         found += 1 
 
                 if found > 0:
-                    psum = map(operator.div, psum, (antialias * antialias, ) * len(psum)) 
+                    psum = map(operator.div, psum, (found, ) * len(psum)) 
                     new_img.putpixel((x, y), tuple(psum))
 
         return new_img 
@@ -140,7 +140,7 @@ class LocalWarpEffect(Effect):
                         found += 1 
 
                 if found > 0:
-                    psum = map(operator.div, psum, (antialias * antialias, ) * len(psum)) 
+                    psum = map(operator.div, psum, (found, ) * len(psum)) 
                     new_img.putpixel((x, y), tuple(psum))
 
         return new_img 
@@ -191,7 +191,7 @@ class LensWarpEffect(Effect):
                         found += 1 
 
                 if found > 0:
-                    psum = map(operator.div, psum, (self.antialias * self.antialias, ) * len(psum)) 
+                    psum = map(operator.div, psum, (found, ) * len(psum)) 
                     new_img.putpixel((i, j), tuple(psum))
 
         return new_img
