@@ -59,8 +59,19 @@ class PerspectiveWarpEffect(Effect):
         mat = cv.CreateMat(3, 3, cv.CV_32FC1)
         cv.GetPerspectiveTransform(pos, orig, mat) 
         a = numpy.asarray(mat) 
+        matrix = a.flatten()
 
-        im = im.transform(im.size, Image.PERSPECTIVE, a.flatten(), Image.BILINEAR) 
+        # fill empty color
+        data = im.transform(im.size, Image.PERSPECTIVE, matrix,
+                          Image.BILINEAR, 1)
+        mask = Image.new("L", im.size, 255)
+        mask = mask.transform(im.size, Image.PERSPECTIVE, matrix,
+                          Image.BILINEAR, 1) 
+        imout = Image.new("RGB", im.size, self.empty_color)
+        imout.paste(data, mask)
+
+        im = imout
+        
         return im
 
 
