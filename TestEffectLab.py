@@ -39,13 +39,13 @@ def main():
     print 'Started'
 
     effects = [
-        RadianFormulaEffect(lambda r, phi: (r ** 2, phi), 4), 
+        LocalWarpEffect((50, 20), (80, 40), 30),
         RadianSqrtEffect(),
-        GlobalWaveEffect(),
         LensWarpEffect(lambda x, y: (sign(x) * x ** 2, sign(y) * y ** 2)),
+        RadianFormulaEffect(lambda r, phi: (r ** 2, phi), 4), 
+        GlobalWaveEffect(),
         LensWarpEffect(lambda x, y: (sin(x * math.pi / 2), sin(y * math.pi / 2))),
         RadianFormulaEffect(lambda r, phi: (r ** 1.5 * math.cos(r), phi)),
-        LocalWarpEffect((130, 120), (130, 50), 100),
                ] 
 
     # if os.path.exists('z.jpg'):
