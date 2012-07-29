@@ -14,6 +14,11 @@ import StringIO
 import math, operator
 from math import sqrt, sin, cos, atan2
 
+try:
+    import EffectLabCore as core
+except:
+    pass
+
 # Effect是特效处理流程中的过滤器，输入PIL中的Image，然后输出处理好的Image
 # 其中，（）是经过重载的，默认调用成员函数filter(img)。这样可以方便的与其他普通过滤器函数组合在一起。
 #
@@ -202,6 +207,12 @@ class LensWarpEffect(Effect):
         '''Effect Kernel of radius based Effect. 
         @param formula is a function like f(x, y) => (x', y'), -1 <= x <= 1 and -1 <= y <= 1
         '''
+
+        try:
+            return core.global_warp(img) 
+        except:
+            pass
+        
         width, height = img.size
         nx, ny = width, height
         new_img = img.copy()

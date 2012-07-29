@@ -39,13 +39,13 @@ def main():
     print 'Started'
 
     effects = [
-        LocalWarpEffect((50, 20), (80, 40), 30),
+        # LocalWarpEffect((50, 20), (80, 40), 30),
         RadianSqrtEffect(),
-        LensWarpEffect(lambda x, y: (sign(x) * x ** 2, sign(y) * y ** 2)),
-        RadianFormulaEffect(lambda r, phi: (r ** 2, phi), 4), 
-        GlobalWaveEffect(),
-        LensWarpEffect(lambda x, y: (sin(x * math.pi / 2), sin(y * math.pi / 2))),
-        RadianFormulaEffect(lambda r, phi: (r ** 1.5 * math.cos(r), phi)),
+        # LensWarpEffect(lambda x, y: (sign(x) * x ** 2, sign(y) * y ** 2)),
+        # RadianFormulaEffect(lambda r, phi: (r ** 2, phi), 4), 
+        # GlobalWaveEffect(),
+        # LensWarpEffect(lambda x, y: (sin(x * math.pi / 2), sin(y * math.pi / 2))),
+        # RadianFormulaEffect(lambda r, phi: (r ** 1.5 * math.cos(r), phi)),
                ] 
 
     # if os.path.exists('z.jpg'):
@@ -78,10 +78,12 @@ def main():
         offset += char_img[last].width - 1
 
     for index, effect in enumerate(effects):
-        merge_origin_and_new(img, effect).save('%d.jpg' % index, quality=90)
+        for i in xrange(100):
+            merge_origin_and_new(img, effect).save('tmp/%d-%d.jpg' % (index, i), quality=90)
         print '.',
     print 'done'
 
         
 if __name__ == '__main__':
-    autoreload.main(main)
+    # autoreload.main(main)
+    main()
