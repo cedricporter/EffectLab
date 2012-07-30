@@ -4,3 +4,6 @@
 *.jpg
 *.so
 Images/
+build/
+dist/
+MANIFEST
