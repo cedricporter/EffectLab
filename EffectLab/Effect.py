@@ -316,45 +316,6 @@ class GlobalWaveEffect(Effect):
         warp = RegionWarpEffect(f, self.antialias)
         return warp(img)
 
-# class WaveEffect(Effect):
-#     name = 'Wave Effect'
-#     def __init__(self, vertical_delta=0.1, horizon_delta=0, box=None):
-#         self.vertical_delta = vertical_delta
-#         self.horizon_delta = horizon_delta
-#         self.box = box
-
-#     def filter(self, img):
-#         if self.box == None:
-#             left, top = 0, 0
-#             right, bottom = img.size[0] - 1, img.size[1] - 1
-#         else:
-#             left, top, right, bottom = self.box
-
-#         width, height = img.size
-
-#         mid_x = (right + left) / 2.0
-#         mid_y = (top + bottom) / 2.0 
-
-#         new_img = img.copy()
-#         height_delta = (bottom - top + 1) * self.vertical_delta 
-#         width_delta = 2 * math.pi / (right - left + 1) * (self.horizon_delta + 1)
-#         for x in xrange(left, right):
-#             degree = x * width_delta
-#             for y in xrange(top, bottom):
-
-#                 # distortion
-#                 h = sin(degree) * height_delta * ((bottom - top) / 2 - sqrt((y - mid_y) ** 2 + (x - mid_x) ** 2)) / mid_y
-#                 offset = int(round(h))
-#                 _x = x
-#                 _y = y + offset
-
-#                 if 0 < x < width and 0 < _y < height:
-#                     new_img.putpixel((x, y), img.getpixel((x, _y)))
-#                 else:
-#                     new_img.putpixel((x, y), Effect.empty_color)
-
-#         return new_img
-
 
 class EffectGlue(Effect):
     name = 'Effect Glue'
