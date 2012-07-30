@@ -121,8 +121,10 @@ static PyObject* _lens_warp(PyObject *self, PyObject *args, int (*warp)(PyObject
     UINT8 *pixel; 
     int i3, j3;
     PyObject *func, *ret;
+    PyObject *empty_color;
+    int er, eg, eb, ea;
 
-    if (!PyArg_ParseTuple(args, "OOi", &image, &func, &antialias))
+    if (!PyArg_ParseTuple(args, "OOiO", &image, &func, &antialias, &empty_color))
     {
         return NULL;
     } 
@@ -141,6 +143,11 @@ static PyObject* _lens_warp(PyObject *self, PyObject *args, int (*warp)(PyObject
     } 
     imOut = core->image; 
 
+    if (!PyArg_ParseTuple(empty_color, "iiii", &er, &eg, &eb, &ea))
+    {
+        return NULL;
+    } 
+
     width = imIn->xsize;
     height = imIn->ysize;
     
@@ -156,10 +163,10 @@ static PyObject* _lens_warp(PyObject *self, PyObject *args, int (*warp)(PyObject
 
             pixel = imOut->image[j];
             pixel += i * 4;
-            pixel[0] = 128;
-            pixel[1] = 128;
-            pixel[2] = 128;
-            pixel[3] = 128;
+            pixel[0] = er;
+            pixel[1] = eg;
+            pixel[2] = eb;
+            pixel[3] = ea;
 
             for (ai = 0; ai < antialias; ai++)
             {
@@ -283,7 +290,7 @@ static PyObject* wave_warp(PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple(empty_color, "iiii", &er, &eg, &eb, &ea))
     {
-        return 0;
+        return NULL;
     } 
 
     width = imIn->xsize;

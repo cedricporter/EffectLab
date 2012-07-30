@@ -210,7 +210,7 @@ class LensWarpEffect(Effect):
         '''
 
         try:
-            return core.lens_warp(img, self.formula, self.antialias) 
+            return core.lens_warp(img, self.formula, self.antialias, self.empty_color) 
         except:
             pass
         
@@ -261,7 +261,7 @@ class RadianFormulaEffect(Effect):
         self.antialias = antialias
 
     def filter(self, img):
-        return core.radian_warp(img, self.formula, self.antialias)
+        return core.radian_warp(img, self.formula, self.antialias, self.empty_color)
 
         def radian_formula(x, y):
             '''transform formula

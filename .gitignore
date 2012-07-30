@@ -2,4 +2,5 @@
 *~
 .ropeproject/
 *.jpg
+*.so
 Images/
