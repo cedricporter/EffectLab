@@ -14,6 +14,8 @@ import StringIO
 import math, operator
 from math import sqrt, sin, cos, atan2
 
+VERSION = "1.0.0"
+
 # 尝试加载C语言实现的部分
 try:
     import EffectLabCore as core

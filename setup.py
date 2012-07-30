@@ -6,6 +6,7 @@
 #
 
 from distutils.core import setup, Extension
+import re
 
 NAME = "EffectLab"
 DESCRIPTION = "Python Image Processing Effect Lab"
@@ -13,8 +14,17 @@ AUTHOR = "Hua Liang [Stupid ET]"
 HOMEPAGE = "http://everet.org/2012/07/effectlab.html"
 DOWNLOAD_URL = "https://github.com/cedricporter/EffectLab/downloads"
 
+def find_version(filename):
+    for line in open(filename).readlines():
+        m = re.search("VERSION\s*=\s*\"([^\"]+)\"", line)
+        if m:
+            return m.group(1)
+    return None
+
+VERSION = find_version("EffectLab/Effect.py")
+
 setup(name = NAME,
-      version = '1.0',
+      version = VERSION,
       author = 'Hua Liang [Stupid ET]',
       author_email = 'et@everet.org',
       url = HOMEPAGE,
