@@ -302,7 +302,7 @@ class GlobalWaveEffect(Effect):
         return x, y + offset
         
     def filter(self, img):
-        return core.wave_warp(img, self.dw, self.dh, self.antialias)
+        return core.wave_warp(img, self.dw, self.dh, self.antialias, self.empty_color)
 
         
         width, height = img.size

@@ -256,12 +256,13 @@ static PyObject* wave_warp(PyObject *self, PyObject *args)
     double xnew, ynew;
     UINT8 *pixel; 
     int i3, j3;
-    PyObject *ret;
+    PyObject *ret, *empty_color;
     double dw = 1, dh=0.3;
     double radian;
     double offset;
+    int er, eg, eb, ea;
 
-    if (!PyArg_ParseTuple(args, "Oddi", &image, &dw, &dh, &antialias))
+    if (!PyArg_ParseTuple(args, "OddiO", &image, &dw, &dh, &antialias, &empty_color))
     {
         return NULL;
     } 
@@ -280,6 +281,11 @@ static PyObject* wave_warp(PyObject *self, PyObject *args)
     } 
     imOut = core->image; 
 
+    if (!PyArg_ParseTuple(empty_color, "iiii", &er, &eg, &eb, &ea))
+    {
+        return 0;
+    } 
+
     width = imIn->xsize;
     height = imIn->ysize;
     
@@ -295,10 +301,10 @@ static PyObject* wave_warp(PyObject *self, PyObject *args)
 
             pixel = imOut->image[j];
             pixel += i * 4;
-            pixel[0] = 128;
-            pixel[1] = 128;
-            pixel[2] = 128;
-            pixel[3] = 128;
+            pixel[0] = er;
+            pixel[1] = eg;
+            pixel[2] = eb;
+            pixel[3] = ea;
 
             for (ai = 0; ai < antialias; ai++)
             {
