@@ -14,6 +14,7 @@ import StringIO
 import math, operator
 from math import sqrt, sin, cos, atan2
 
+# 尝试加载C语言实现的部分
 try:
     import EffectLabCore as core
 except:
@@ -209,7 +210,7 @@ class LensWarpEffect(Effect):
         '''
 
         try:
-            return core.global_warp(img) 
+            return core.lens_warp(img, self.formula, self.antialias) 
         except:
             pass
         
@@ -260,6 +261,8 @@ class RadianFormulaEffect(Effect):
         self.antialias = antialias
 
     def filter(self, img):
+        return core.radian_warp(img, self.formula, self.antialias)
+
         def radian_formula(x, y):
             '''transform formula
             func is a function that like f(r, phi) => (r, phi)
@@ -299,6 +302,9 @@ class GlobalWaveEffect(Effect):
         return x, y + offset
         
     def filter(self, img):
+        return core.wave_warp(img, self.dw, self.dh, self.antialias)
+
+        
         width, height = img.size
         f = lambda x, y: self.transform(x, y, width, height, self.dw, self.dh)
         warp = RegionWarpEffect(f, self.antialias)

@@ -38,12 +38,14 @@ class Character(object):
 def main():
     print 'Started'
 
+    os.system('mkdir tmp')
+
     effects = [
         # LocalWarpEffect((50, 20), (80, 40), 30),
-        RadianSqrtEffect(),
+        # RadianSqrtEffect(),
         # LensWarpEffect(lambda x, y: (sign(x) * x ** 2, sign(y) * y ** 2)),
         # RadianFormulaEffect(lambda r, phi: (r ** 2, phi), 4), 
-        # GlobalWaveEffect(),
+        GlobalWaveEffect(1, 0.5),
         # LensWarpEffect(lambda x, y: (sin(x * math.pi / 2), sin(y * math.pi / 2))),
         # RadianFormulaEffect(lambda r, phi: (r ** 1.5 * math.cos(r), phi)),
                ] 
@@ -78,12 +80,13 @@ def main():
         offset += char_img[last].width - 1
 
     for index, effect in enumerate(effects):
-        for i in xrange(100):
+        for i in xrange(1):
             merge_origin_and_new(img, effect).save('tmp/%d-%d.jpg' % (index, i), quality=90)
         print '.',
     print 'done'
 
         
 if __name__ == '__main__':
+    os.system('rm tmp/*')
     # autoreload.main(main)
     main()
