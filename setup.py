@@ -11,7 +11,7 @@ NAME = "EffectLab"
 DESCRIPTION = "Python Image Processing Effect Lab"
 AUTHOR = "Hua Liang [Stupid ET]"
 HOMEPAGE = "http://everet.org/2012/07/effectlab.html"
-DOWNLOAD_URL = "https://github.com/cedricporter/EffectLab/zipball/master"
+DOWNLOAD_URL = "https://github.com/cedricporter/EffectLab/downloads"
 
 setup(name = NAME,
       version = '1.0',
