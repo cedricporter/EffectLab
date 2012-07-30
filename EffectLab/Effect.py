@@ -261,7 +261,10 @@ class RadianFormulaEffect(Effect):
         self.antialias = antialias
 
     def filter(self, img):
-        return core.radian_warp(img, self.formula, self.antialias, self.empty_color)
+        try:
+            return core.radian_warp(img, self.formula, self.antialias, self.empty_color)
+        except:
+            pass
 
         def radian_formula(x, y):
             '''transform formula
@@ -290,20 +293,23 @@ class RadianSqrtEffect(RadianFormulaEffect):
 class GlobalWaveEffect(Effect):
     '''全局波浪效果，使用sin进行变换
     '''
-    def __init__(self, dw=1, dh=0.1, antialias=2):
+    def __init__(self, dw=1, dh=0.1, xoffset=0, antialias=2):
         self.dw = dw
         self.dh = dh
         self.antialias = antialias
+        self.xoffset = xoffset
 
     def transform(self, x, y, width, height, delta_w, delta_h):
-        radian = 2 * math.pi * x / float(width) * delta_w
+        radian = 2 * math.pi * (x + self.xoffset) / float(width) * delta_w
         offset = 0.5 * sin(radian) * height * delta_h
 
         return x, y + offset
         
     def filter(self, img):
-        return core.wave_warp(img, self.dw, self.dh, self.antialias, self.empty_color)
-
+        try:
+            return core.wave_warp(img, self.dw, self.dh, self.xoffset, self.antialias, self.empty_color)
+        except:
+            pass 
         
         width, height = img.size
         f = lambda x, y: self.transform(x, y, width, height, self.dw, self.dh)

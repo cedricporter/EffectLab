@@ -268,8 +268,9 @@ static PyObject* wave_warp(PyObject *self, PyObject *args)
     double radian;
     double offset;
     int er, eg, eb, ea;
+    double xoffset;
 
-    if (!PyArg_ParseTuple(args, "OddiO", &image, &dw, &dh, &antialias, &empty_color))
+    if (!PyArg_ParseTuple(args, "OdddiO", &image, &dw, &dh, &xoffset, &antialias, &empty_color))
     {
         return NULL;
     } 
@@ -322,7 +323,7 @@ static PyObject* wave_warp(PyObject *self, PyObject *args)
                     yy = j + aj / (double)antialias;
 
                     /* ------------------------- */
-                    radian = 2 * 3.14159265 * xx / (double)width * dw;
+                    radian = 2 * 3.14159265 * (xx + xoffset) / (double)width * dw;
                     offset = 0.5 * sin(radian) * height * dh;
 
                     xnew = xx;
