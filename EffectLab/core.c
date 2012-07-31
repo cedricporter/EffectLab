@@ -3,7 +3,7 @@
 #include <math.h>
 #include "ImPlatform.h" 
 
-/* 1.9.1 pil */
+/* 1.1.9 pil */
 
 typedef struct ImagingMemoryInstance* Imaging; 
 typedef struct ImagingAccessInstance* ImagingAccess;

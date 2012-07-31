@@ -99,5 +99,5 @@ if __name__ == '__main__':
 
     t = Timer('test()', 'from __main__ import test')
 
-    print avg(t.repeat(3, 100))
+    print sum(t.repeat(3, 100)) / 3
 
