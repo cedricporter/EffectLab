@@ -89,4 +89,15 @@ def main():
 if __name__ == '__main__':
     os.system('rm tmp/*')
     # autoreload.main(main)
-    main()
+    # main()
+    from timeit import Timer
+    from functools import partial
+
+    img = Image.new("RGB", (100, 100))
+    wave = GlobalWaveEffect(1, 0.5)
+    test = partial(wave, img)
+
+    t = Timer('test()', 'from __main__ import test')
+
+    print avg(t.repeat(3, 100))
+
