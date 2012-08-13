@@ -65,6 +65,8 @@ typedef struct {
 } ImagingObject;
 
 
+
+/* 弧度变形 */
 static int _radian_warp(PyObject *func, double x, double y, double *xnew, double *ynew)
 {
     double phi,radius,radius2;
@@ -82,6 +84,7 @@ static int _radian_warp(PyObject *func, double x, double y, double *xnew, double
     {
         return 0;
     } 
+    Py_DECREF(ret);
 
     *xnew = radius * cos(phi);
     *ynew = radius * sin(phi);
@@ -89,6 +92,8 @@ static int _radian_warp(PyObject *func, double x, double y, double *xnew, double
     return 1;
 }
 
+
+/* 基于平移的变形 */
 static int _xy_warp(PyObject *func, double x, double y, double *xnew, double *ynew)
 {
     PyObject *ret;
@@ -100,9 +105,11 @@ static int _xy_warp(PyObject *func, double x, double y, double *xnew, double *yn
     {
         return 0;
     } 
+    Py_DECREF(ret);
 
     return 1;
 }
+
 
 /* 镜头变形效果 */
 static PyObject* _lens_warp(PyObject *self, PyObject *args, int (*warp)(PyObject*, double, double, double *, double*))
@@ -120,7 +127,7 @@ static PyObject* _lens_warp(PyObject *self, PyObject *args, int (*warp)(PyObject
     double xnew, ynew;
     UINT8 *pixel; 
     int i3, j3;
-    PyObject *func, *ret;
+    PyObject *func;
     PyObject *empty_color;
     int er, eg, eb, ea;
 
@@ -134,6 +141,7 @@ static PyObject* _lens_warp(PyObject *self, PyObject *args, int (*warp)(PyObject
         return NULL;
     } 
     imIn = core->image;
+    Py_DECREF(core);
 
     /* copy a new image */
     newimage = PyObject_CallMethod(image, "copy", NULL);
@@ -142,6 +150,7 @@ static PyObject* _lens_warp(PyObject *self, PyObject *args, int (*warp)(PyObject
         return NULL;
     } 
     imOut = core->image; 
+    Py_DECREF(core);
 
     if (!PyArg_ParseTuple(empty_color, "iiii", &er, &eg, &eb, &ea))
     {
@@ -181,23 +190,6 @@ static PyObject* _lens_warp(PyObject *self, PyObject *args, int (*warp)(PyObject
 
                     /* ----------- */
                     warp(func, xx, yy, &xnew, &ynew);
-
-                    /* if ((ret = PyObject_CallFunction(func, "dd", xx, yy)) == NULL) */
-                    /* { */
-                    /*     return NULL; */
-                    /* } */
-                    /* if (!PyArg_ParseTuple(ret, "dd", &xnew, &ynew)) */
-                    /* { */
-                    /*     return NULL; */
-                    /* } */
-
-                    /* radius2 = xx * xx + yy * yy; */
-                    /* radius = sqrt(radius2); */
-                    /* phi = atan2(yy, xx); */
-
-                    /* radius = sqrt(radius); */
-                    /* xnew = radius * cos(phi); */
-                    /* ynew = radius * sin(phi); */
 
                     /* ------------------------- */
 
@@ -240,14 +232,17 @@ static PyObject* _lens_warp(PyObject *self, PyObject *args, int (*warp)(PyObject
 
 static PyObject* lens_warp(PyObject *self, PyObject *args)
 {
-    return _lens_warp(self, args, _xy_warp);
+    PyObject *img = _lens_warp(self, args, _xy_warp);
+    return img;
 }
 
 static PyObject* radian_warp(PyObject *self, PyObject *args)
 {
-    return _lens_warp(self, args, _radian_warp);
+    PyObject *img = _lens_warp(self, args, _radian_warp);
+    return img;
 }
 
+/* 波浪效果 */
 static PyObject* wave_warp(PyObject *self, PyObject *args)
 {
     PyObject *image;
@@ -263,7 +258,7 @@ static PyObject* wave_warp(PyObject *self, PyObject *args)
     double xnew, ynew;
     UINT8 *pixel; 
     int i3, j3;
-    PyObject *ret, *empty_color;
+    PyObject *empty_color;
     double dw = 1, dh=0.3;
     double radian;
     double offset;
@@ -280,6 +275,7 @@ static PyObject* wave_warp(PyObject *self, PyObject *args)
         return NULL;
     } 
     imIn = core->image;
+    Py_DECREF(core);
 
     /* copy a new image */
     newimage = PyObject_CallMethod(image, "copy", NULL);
@@ -288,6 +284,7 @@ static PyObject* wave_warp(PyObject *self, PyObject *args)
         return NULL;
     } 
     imOut = core->image; 
+    Py_DECREF(core);
 
     if (!PyArg_ParseTuple(empty_color, "iiii", &er, &eg, &eb, &ea))
     {
@@ -365,6 +362,7 @@ static PyObject* wave_warp(PyObject *self, PyObject *args)
 
     return (PyObject *)newimage;
 }
+
 
 static PyMethodDef CoreMethods[] = {
     {"lens_warp", lens_warp, METH_VARARGS, "Global warp"},
