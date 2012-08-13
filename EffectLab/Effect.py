@@ -14,7 +14,7 @@ import StringIO
 import math, operator
 from math import sqrt, sin, cos, atan2
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 
 # 尝试加载C语言实现的部分
 try:
