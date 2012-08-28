@@ -51,29 +51,39 @@ class PerspectiveWarpEffect(Effect):
                  rightbottomoffset=(0, 0),
                  leftbottomoffset=(0, 0),
                  ):
-        self.offsets = [lefttopoffset,
-                        righttopoffset,
-                        rightbottomoffset,
-                        leftbottomoffset,
-                        ]
+        # self.offsets = [lefttopoffset,
+        #                 righttopoffset,
+        #                 rightbottomoffset,
+        #                 leftbottomoffset,
+        #                 ]
+        self.lefttopoffset     = lefttopoffset
+        self.righttopoffset    = righttopoffset
+        self.rightbottomoffset = rightbottomoffset
+        self.leftbottomoffset  = leftbottomoffset
 
     def filter(self, im):
-        import cv, numpy
+        # import cv, numpy
+
+        # orig = [(0,0),(width - 1,0),(width - 1, height - 1),(0, height - 1)]
+        # pos = map(lambda lhs, rhs: (lhs[0] + rhs[0], lhs[1] + rhs[1]), orig, self.offsets)
+
+        # mat = cv.CreateMat(3, 3, cv.CV_32FC1)
+        # cv.GetPerspectiveTransform(pos, orig, mat) 
+        # a = numpy.asarray(mat) 
+        # matrix = a.flatten()
 
         width, height = im.size
-        orig = [(0,0),(width - 1,0),(width - 1, height - 1),(0, height - 1)]
-        pos = map(lambda lhs, rhs: (lhs[0] + rhs[0], lhs[1] + rhs[1]), orig, self.offsets)
-
-        mat = cv.CreateMat(3, 3, cv.CV_32FC1)
-        cv.GetPerspectiveTransform(pos, orig, mat) 
-        a = numpy.asarray(mat) 
-        matrix = a.flatten()
+        matrix = (0 + self.lefttopoffset[0], 0 + self.lefttopoffset[1],
+                  0 + self.leftbottomoffset[0], height + self.leftbottomoffset[1],
+                  width + self.rightbottomoffset[0], height + self.rightbottomoffset[1],
+                  width + self.righttopoffset[0], 0 + self.righttopoffset[1],)
+        # print matrix 
 
         # fill empty color
-        data = im.transform(im.size, Image.PERSPECTIVE, matrix,
+        data = im.transform(im.size, Image.QUAD, matrix,
                           Image.BILINEAR, 1)
         mask = Image.new("L", im.size, 255)
-        mask = mask.transform(im.size, Image.PERSPECTIVE, matrix,
+        mask = mask.transform(im.size, Image.QUAD, matrix,
                           Image.BILINEAR, 1) 
         imout = Image.new("RGB", im.size, self.empty_color)
         imout.paste(data, mask)
