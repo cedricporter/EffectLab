@@ -81,10 +81,10 @@ class PerspectiveWarpEffect(Effect):
 
         # fill empty color
         data = im.transform(im.size, Image.QUAD, matrix,
-                          Image.BILINEAR, 1)
+                          Image.BILINEAR)
         mask = Image.new("L", im.size, 255)
         mask = mask.transform(im.size, Image.QUAD, matrix,
-                          Image.BILINEAR, 1) 
+                          Image.BILINEAR)
         imout = Image.new("RGB", im.size, self.empty_color)
         imout.paste(data, mask)
 
