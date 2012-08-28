@@ -8,7 +8,7 @@
 # Rule Of Optimization: Prototype before polishing. Get it
 #                       working before you optimize it.
 
-import random, string, md5, time
+import random, string, time
 import Image, ImageDraw, ImageFont, ImageChops, ImageFilter
 import StringIO
 import math, operator
