@@ -302,31 +302,81 @@ class RadianSqrtEffect(RadianFormulaEffect):
         super(RadianSqrtEffect, self).__init__(
             lambda r, phi: (sqrt(r), phi))
         
+
 class GlobalWaveEffect(Effect):
     '''全局波浪效果，使用sin进行变换
     '''
-    def __init__(self, dw=1, dh=0.1, xoffset=0, antialias=2):
+    def __init__(self, dw=1, dh=0.1, xoffset=0, antialias=2,
+                 amplitudeRange = (6, 6.5),
+                 periodRange    = (0.07, 0.07),
+                 ):
         self.dw = dw
         self.dh = dh
         self.antialias = antialias
         self.xoffset = xoffset
 
-    def transform(self, x, y, width, height, delta_w, delta_h):
-        radian = 2 * math.pi * (x + self.xoffset) / float(width) * delta_w
-        offset = 0.5 * sin(radian) * height * delta_h
+        self.amplitude = random.uniform(*amplitudeRange)
+        self.period = random.uniform(*periodRange)
+        self.offset = (random.uniform(0, math.pi * 2 / self.period),
+                       random.uniform(0, math.pi * 2 / self.period))
 
-        return x, y + offset
-        
+    def transform(self, image):
+        return (lambda x, y,
+                a = self.amplitude,
+                p = self.period,
+                o = self.offset:
+                (math.sin( (y+o[0])*p )*a + x,
+                 math.sin( (x+o[1])*p )*a + y))
+
+    def render(self, image):
+        r = 10
+        xPoints = image.size[0] / r + 2
+        yPoints = image.size[1] / r + 2
+        f = self.transform(image)
+
+        # Create a list of arrays with transformed points
+        xRows = []
+        yRows = []
+        for j in xrange(yPoints):
+            xRow = []
+            yRow = []
+            for i in xrange(xPoints):
+                x, y = f(i*r, j*r)
+
+                # Clamp the edges so we don't get black undefined areas
+                x = max(0, min(image.size[0]-1, x))
+                y = max(0, min(image.size[1]-1, y))
+
+                xRow.append(x)
+                yRow.append(y)
+            xRows.append(xRow)
+            yRows.append(yRow)
+
+        # Create the mesh list, with a transformation for
+        # each square between points on the grid
+        mesh = []
+        for j in xrange(yPoints-1):
+            for i in xrange(xPoints-1):
+                mesh.append((
+                    # Destination rectangle
+                    (i*r, j*r,
+                     (i+1)*r, (j+1)*r),
+                    # Source quadrilateral
+                    (xRows[j  ][i  ], yRows[j  ][i  ],
+                     xRows[j+1][i  ], yRows[j+1][i  ],
+                     xRows[j+1][i+1], yRows[j+1][i+1],
+                     xRows[j  ][i+1], yRows[j  ][i+1]),
+                    ))
+
+        return image.transform(image.size, Image.MESH, mesh, Image.BILINEAR)
+
     def filter(self, img):
-        try:
-            return core.wave_warp(img, self.dw, self.dh, self.xoffset, self.antialias, self.empty_color)
-        except:
-            pass 
-        
-        width, height = img.size
-        f = lambda x, y: self.transform(x, y, width, height, self.dw, self.dh)
-        warp = RegionWarpEffect(f, self.antialias)
-        return warp(img)
+        # try:
+        #     return core.wave_warp(img, self.dw, self.dh, self.xoffset, self.antialias, self.empty_color)
+        # except:
+        #     pass 
+
+        return self.render(img)
 
 
 class EffectGlue(Effect):
